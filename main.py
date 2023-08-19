@@ -67,7 +67,7 @@ async def events(tourn_id: str):
         events.append(event)
     return {"events": events}
 
-# Takes a tournament id as an input and returns all events and their respective IDs at that tournament. 
+# Takes a tournament id and event id as inputs and returns all entries. 
 @app.get("/api/entries/{tourn_id}/{event_id}")
 async def entries(tourn_id: str, event_id: str):
     session = requests.Session()
@@ -144,7 +144,7 @@ async def rounds(tourn_id: str, event_id: str):
     
     return {"rounds": rounds}
 
-# Takes a tournament id and round id as inputs and returns all events and their respective IDs at that tournament. 
+# Takes a tournament id and round id as inputs and returns all pairings. 
 @app.get("/api/pairings/{tourn_id}/{round_id}")
 async def pairings(tourn_id: str, round_id: str):
     session = requests.Session()
@@ -156,9 +156,8 @@ async def pairings(tourn_id: str, round_id: str):
     if resp.status_code != 200:
         return {"error": f"bad status code {resp.status_code}"}
     soup = BeautifulSoup(resp.text, "html.parser")
-    entries = []
+    pairings = []
     table = soup.find('table')
-    removed_list = ['*', '\n', '\t'] #for removing all of the extra html
     for row in table.find_all('tr'):
         columns = row.find_all('td')
         entry = {}
@@ -167,6 +166,7 @@ async def pairings(tourn_id: str, round_id: str):
             value = re.sub(r"[*|\n|\t]", "", column.get_text(strip=True))
             entry[header] = value
         
-        entries.append(entry)
+        pairings.append(entry)
+        pairings.remove(0)
 
-    return {"entries": entries}
+    return {"pairings": pairings}
