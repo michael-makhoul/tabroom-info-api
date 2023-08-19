@@ -165,8 +165,6 @@ async def pairings(tourn_id: str, round_id: str):
             header = table.find('thead').find('tr').find_all('th')[i].get_text(strip=True)
             value = re.sub(r"[*|\n|\t]", "", column.get_text(strip=True))
             entry[header] = value
-        
-        pairings.append(entry)
-        pairings.remove(0)
-
+        if entry:
+            pairings.append(entry)
     return {"pairings": pairings}
